@@ -8,7 +8,7 @@ import openpyxl
 import time
 
 st.set_page_config(page_title='Performance Tracker V1')
-st.header(' Insight Spark 📈)
+st.header(' Insight Spark 📈')
 st.subheader('Analyse Student Performance in real time')
 
 
