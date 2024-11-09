@@ -1,29 +1,21 @@
-''' Student performance Visual for meetings and analysis '''
-
-# importing modules
+# Importing necessary modules
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import openpyxl
-import io
-import base64
 import time
-import math
 
 st.set_page_config(page_title='Performance Tracker V1')
-st.header(' Student Performance tracker©️  V1.1.1 🧑‍🏫')
+st.header(' Insight Spark 📈)
 st.subheader('Analyse Student Performance in real time')
-st.write(' Built by D.Rana  ')
-st.write(' Code restricted and not be used without permission ')
 
 
 # File upload
 fileupload = st.file_uploader('Please upload your file here', type='XLSX')
 
-
-#file uploading conditioning
+# File uploading conditioning
 if fileupload is None:
     st.info('Please upload the file to analyze the data')
 else:
@@ -32,7 +24,6 @@ else:
         st.success('Data uploaded successfully')
 
         # Input of the roll number
-
         roll_num = st.number_input("Please enter the student's roll number")
 
         if roll_num in df['Roll Number'].values:
@@ -44,22 +35,11 @@ else:
             selectedroll = df[df['Roll Number'] == roll_num]
 
             # Subject selection
-            selection = st.multiselect('Choose subjects to visualise',
-                                      ('English', 'Accountancy', 'Business Studies', 'Economics', 'Optional'))
+            selection = st.multiselect('Choose subjects to visualize',
+                                       ('English', 'Accountancy', 'Business Studies', 'Economics', 'Optional'))
 
-            validselection = [selection for subject in selection if subject in df.columns]
+            validselection = [subject for subject in selection if subject in df.columns]
             if validselection:
-                bar = st.progress(2)
-                time.sleep(2)
-                bar.progress(2)
-
-                with st.status("Loading data ...") as s:
-                    time.sleep(2)
-                    st.write("loading")
-
-
-
-
                 studentname = selectedroll['Name'].values[0]
                 splitname = studentname.split()[0]
                 st.write(f"{studentname} performance in selected subjects")
@@ -70,47 +50,43 @@ else:
                 student_performance['Marks'] = student_performance['Marks'].astype(float)
                 student_performance['Subjects'] = student_performance.index
 
-                # Bar chart colors
-                bar_colors = ['#ADD8E6', '#FA8072', '#FFD700', '#2E8B57', '#EE82EE']
-                markercolors = ['#FFFFFF', '#8B0000', '#FF8C00', '#008080', '#800080']
-
-                # Create subplots for combined bar and line chart
-                fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-                # Add bar chart
-                fig.add_trace(
-                    go.Bar(
-                        x=student_performance['Subjects'],
-                        y=student_performance['Marks'],
-                        name='Marks',
-                        marker_color=bar_colors,
-                    ),
-                    secondary_y=False,
-                )
-
-                # Add line chart
-                fig.add_trace(
-                    go.Scatter(
-                        x=student_performance['Subjects'],
-                        y=student_performance['Marks'],
-                        name='Score marker',
-                        mode='lines+markers',
-                        line=dict(color='white'),
-                        marker=dict(color=markercolors, size=10),
-                    ),
-                    secondary_y=False,
-                )
+                # Enhanced Bar Chart
+                bar_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+                fig = px.bar(student_performance, x='Subjects', y='Marks', color='Marks',
+                             color_continuous_scale=bar_colors, title=f"{studentname}'s Performance in Selected Subjects")
 
                 fig.update_layout(
-                    title_text=f"{studentname}'s performance in Selected Subjects",
                     xaxis_title="Subjects",
                     yaxis_title="Marks",
                     yaxis=dict(range=[0, 100]),
-                    width=1500,
-                    height=509,
-                    showlegend=True,
+                    width=800,
+                    height=500,
+                    coloraxis_showscale=False
                 )
                 st.plotly_chart(fig)
+
+                # Radar Chart for Performance Comparison
+                fig_radar = go.Figure()
+
+                fig_radar.add_trace(go.Scatterpolar(
+                    r=student_performance['Marks'],
+                    theta=student_performance['Subjects'],
+                    fill='toself',
+                    name='Marks',
+                    line=dict(color='blue')
+                ))
+
+                fig_radar.update_layout(
+                    polar=dict(
+                        radialaxis=dict(
+                            visible=True,
+                            range=[0, 100]
+                        )
+                    ),
+                    showlegend=True,
+                    title=f"{studentname}'s Performance Radar Chart"
+                )
+                st.plotly_chart(fig_radar)
 
                 strongestsubject = student_performance['Marks'].idxmax()
                 weakestsubject = student_performance['Marks'].idxmin()
@@ -137,56 +113,38 @@ else:
                 df_strongest = pd.DataFrame(strongest_subject_data)
                 df_weakest = pd.DataFrame(weakest_subject_data)
 
-                # Plot strongest subject performance
-                fig_strongest = go.Figure()
-                fig_strongest.add_trace(go.Scatter(
+                # Enhanced Comparison Chart
+                fig_comparison = make_subplots(rows=1, cols=2, subplot_titles=(f"Strongest Subject: {strongestsubject}", f"Weakest Subject: {weakestsubject}"))
+
+                fig_comparison.add_trace(go.Bar(
                     x=df_strongest['Type'],
                     y=df_strongest['Score'],
-                    mode='lines+markers',
-                    name=f"{strongestsubject} Performance",
-                    line=dict(color='blue', width=2),
-                    marker=dict(size=10)
-                ))
-                fig_strongest.update_layout(
-                    title=f"Comparison of Student's Performance in {strongestsubject}",
-                    xaxis_title="Type",
-                    yaxis_title="Score",
-                    showlegend=True
-                )
+                    name=strongestsubject,
+                    marker_color='blue'
+                ), row=1, col=1)
 
-                # Plot weakest subject performance
-                fig_weakest = go.Figure()
-                fig_weakest.add_trace(go.Scatter(
+                fig_comparison.add_trace(go.Bar(
                     x=df_weakest['Type'],
                     y=df_weakest['Score'],
-                    mode='lines+markers',
-                    name=f"{weakestsubject} Performance",
-                    line=dict(color='red', width=2),
-                    marker=dict(size=10)
-                ))
-                fig_weakest.update_layout(
-                    title=f"Comparison of Student's Performance in {weakestsubject}",
-                    xaxis_title="Type",
-                    yaxis_title="Score",
-                    showlegend=True
-                )
+                    name=weakestsubject,
+                    marker_color='red'
+                ), row=1, col=2)
 
-                # Adding a pie chart for better analysis
-                pie = px.pie(values=student_performance['Marks'],
-                             names=student_performance['Subjects'],
-                             title=f"{splitname} performance share")
+                fig_comparison.update_layout(height=600, width=800, title_text="Performance Comparison")
+                st.plotly_chart(fig_comparison)
+
+                # Improved Pie Chart
+                pie = px.pie(student_performance, values='Marks', names='Subjects', title=f"{splitname} Performance Share",
+                             color_discrete_sequence=px.colors.sequential.RdBu)
                 st.plotly_chart(pie)
 
                 # Performance analysis report card
                 st.header(f"{splitname}'s Academics Analysis 🏫")
                 if strongestsubject_marks > 89:
-                    st.write(f"🎉 Congratulations {splitname} for scoring great in {strongestsubject}! keep it up ")
+                    st.write(f"🎉 Congratulations {splitname} for scoring great in {strongestsubject}! Keep it up!")
                 elif strongestsubject_marks >= 79:
                     st.write(f"🎉 Great job {splitname} for scoring well in {strongestsubject}!")
                 st.write(f"{splitname}, keep working on {weakestsubject}. Next time target for {weakestsubject_marks + 8}.")
-
-                st.plotly_chart(fig_strongest)
-                st.plotly_chart(fig_weakest)
 
                 st.header("Strengths 💪")
                 st.write(f"{splitname} scored highest in {strongestsubject}")
@@ -205,25 +163,36 @@ else:
                 else:
                     st.write(f"Keep working hard, {splitname}. Next time, aim for {percentage + 3:.2f}%!")
 
+                # Additional Insights
+                st.header(f"📊 Additional Insights for {splitname}")
+                
+                # Adding trend analysis
+                st.subheader("Trend Analysis 📈")
+                st.write("Analyze the trend of marks over different semesters or exams to identify consistent improvement or decline.")
+
+                # Adding percentile ranking
+                st.subheader("Percentile Ranking 📊")
+                percentile = df[selection].rank(pct=True).loc[df['Roll Number'] == roll_num].mean(axis=1).values[0] * 100
+                st.write(f"{splitname} is in the {percentile:.2f}th percentile among classmates.")
+
                 # Loading attendance data
-                st.header(f" 📑 {splitname}'s  attendance insights ")
+                st.header(f"📑 {splitname}'s Attendance Insights")
                 selected_attendance = selectedroll['attendance'].values
                 converted_attendance = int(selected_attendance)
-                st.write(f"{splitname}'s attendance percentage is  {converted_attendance} % ")
+                st.write(f"{splitname}'s attendance percentage is {converted_attendance}%")
 
-                # Attencdance condtioning
+                # Attendance conditioning
                 if converted_attendance >= 90:
-                    st.write(f' Congratulations {splitname} for being so attentive keep it up ')
-                elif converted_attendance >=70<86:
-                    st.write(f"Congratulations {splitname} for being so attentive keep it up ")
+                    st.write(f'Congratulations, {splitname}! Your attendance is impressive. Keep it up!')
+                elif 80 <= converted_attendance < 90:
+                    st.write(f'Good job, {splitname}! Aim for above 90% attendance next time.')
+                elif 70 <= converted_attendance < 80:
+                    st.write(f'Attendance is decent, {splitname}, but try to improve it a bit.')
                 else:
-                    st.write(f" {splitname} try to be little more attentive ")
-
-
-            else:
-                st.warning("Please select subjects to visualize.")
+                    st.write(f'{splitname}, attendance needs attention. Aim for above 75% for better consistency.')
 
         else:
-            st.warning("Please enter a valid roll number.")
+            st.warning("Roll number not found in the dataset. Please enter a valid roll number.")
+            
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Error uploading file: {e}")
