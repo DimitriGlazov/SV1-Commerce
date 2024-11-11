@@ -8,15 +8,18 @@ import openpyxl
 import time
 
 st.set_page_config(page_title='Performance Tracker V1')
-st.header(' Insight Spark 📈')
+st.header('Insight Spark 📈')
 st.subheader('Analyse Student Performance in real time')
 
+# URL of the image to display initially
+image_url = "https://www.dropbox.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&st=u778u71c&dl=0"
 
 # File upload
 fileupload = st.file_uploader('Please upload your file here', type='XLSX')
 
-# File uploading conditioning
+# Display image only if no file is uploaded
 if fileupload is None:
+    st.image(image_url, caption="Student Performance Analysis", use_column_width=True)
     st.info('Please upload the file to analyze the data')
 else:
     try:
@@ -27,9 +30,9 @@ else:
         roll_num = st.number_input("Please enter the student's roll number")
 
         if roll_num in df['Roll Number'].values:
-            with st.spinner(text=' Searching '):
+            with st.spinner(text='Searching'):
                 time.sleep(1)
-                st.success(' Roll number data present ')
+                st.success('Roll number data present')
 
             # Extracting the roll number data
             selectedroll = df[df['Roll Number'] == roll_num]
@@ -193,6 +196,6 @@ else:
 
         else:
             st.warning("Roll number not found in the dataset. Please enter a valid roll number.")
-            
+
     except Exception as e:
         st.error(f"Error uploading file: {e}")
