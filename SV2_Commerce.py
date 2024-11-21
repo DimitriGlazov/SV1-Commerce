@@ -55,7 +55,7 @@ else:
                 student_performance['Subjects'] = student_performance.index
 
                 # Enhanced Bar Chart
-                bar_colors = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f']
+                bar_colors = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#edc948']
                 fig = px.bar(student_performance, x='Subjects', y='Marks', color='Marks',
                              color_continuous_scale=bar_colors, title=f"{studentname}'s Performance in Selected Subjects")
 
