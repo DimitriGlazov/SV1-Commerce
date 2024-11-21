@@ -12,7 +12,8 @@ st.header('Insight Spark 📈')
 st.subheader('Analyse Student Performance in real time')
 
 # URL of the image to display initially
-image_url = "https://www.dropbox.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&st=ewqgz8tv&dl=0"
+
+image_url = "https://dl.dropboxusercontent.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&raw=1"
 
 # File upload
 fileupload = st.file_uploader('Please upload your file here', type='XLSX')
