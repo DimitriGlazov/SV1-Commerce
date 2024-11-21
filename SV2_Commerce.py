@@ -12,14 +12,14 @@ st.header('Insight Spark 📈')
 st.subheader('Analyse Student Performance in real time')
 
 # URL of the image to display initially
-image_url = "https://www.dropbox.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&st=u778u71c&dl=0"
+image_url = "https://www.dropbox.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&st=ewqgz8tv&dl=0"
 
 # File upload
 fileupload = st.file_uploader('Please upload your file here', type='XLSX')
 
 # Display image only if no file is uploaded
 if fileupload is None:
-    st.image(image_url, caption="Student Performance Analysis", use_column_width=True)
+    st.image(image_url, caption=" How to use the application ", use_column_width=True)
     st.info('Please upload the file to analyze the data')
 else:
     try:
