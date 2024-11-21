@@ -1,4 +1,3 @@
-# Importing necessary modules
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -59,18 +58,25 @@ else:
                 student_performance['Marks'] = student_performance['Marks'].astype(float)
                 student_performance['Subjects'] = student_performance.index
 
-                # Enhanced Bar Chart
-                bar_colors =  ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
-                fig = px.bar(student_performance, x='Subjects', y='Marks', color='Marks',
-                             color_continuous_scale=bar_colors, title=f"{splitname}'s Performance in Selected Subjects")
-
+                # Enhanced Bar Chart with distinct colors
+                bar_colors = ['#4e79a7', '#f28e2b', '#76b7b2', '#e15759', '#59a14f']
+                student_performance['Color'] = bar_colors[:len(student_performance)]
+                
+                fig = go.Figure(
+                    data=[go.Bar(
+                        x=student_performance['Subjects'],
+                        y=student_performance['Marks'],
+                        marker=dict(color=student_performance['Color'])
+                    )]
+                )
+                
                 fig.update_layout(
+                    title=f"{splitname}'s Performance in Selected Subjects",
                     xaxis_title="Subjects",
                     yaxis_title="Marks",
                     yaxis=dict(range=[0, 100]),
                     width=800,
-                    height=500,
-                    coloraxis_showscale=False
+                    height=500
                 )
                 st.plotly_chart(fig)
 
