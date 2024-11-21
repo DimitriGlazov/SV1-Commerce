@@ -20,7 +20,7 @@ fileupload = st.file_uploader('Please upload your file here', type='XLSX')
 # Display image only if no file is uploaded
 if fileupload is None:
     st.info('Please upload the file to analyze the data')
-    st.image(image_url, caption=" How to use the application ", use_column_width=True)
+    st.image(image_url, caption="How to use the application", use_column_width=True)
 else:
     try:
         df = pd.read_excel(fileupload, engine='openpyxl')
@@ -44,8 +44,14 @@ else:
             validselection = [subject for subject in selection if subject in df.columns]
             if validselection:
                 studentname = selectedroll['Name'].values[0]
-                splitname = studentname.split()[0]
-                st.write(f"{studentname} performance in selected subjects")
+
+                # Handle non-string names
+                if isinstance(studentname, str):
+                    splitname = studentname.split()[0]  # Extract the first name
+                else:
+                    splitname = "Student"  # Fallback if the name is invalid
+
+                st.write(f"{splitname}'s performance in selected subjects")
 
                 # Create a dataframe for the selected subjects
                 student_performance = selectedroll[selection].T
@@ -53,32 +59,19 @@ else:
                 student_performance['Marks'] = student_performance['Marks'].astype(float)
                 student_performance['Subjects'] = student_performance.index
 
-                # Define bar colors
-                bar_colors = ['#4e79a7', '#f28e2b', '#f5deb3', '#2ca02c', '#edc948']
-
-                # Add colors to the DataFrame for selected subjects
-                student_performance['Color'] = [bar_colors[i % len(bar_colors)] for i in range(len(student_performance))]
-
-                # Create the bar chart with explicit colors
-                fig = go.Figure()
-
-                for index, row in student_performance.iterrows():
-                    fig.add_trace(go.Bar(
-                        x=[row['Subjects']],
-                        y=[row['Marks']],
-                        marker_color=row['Color'],
-                        name=row['Subjects']
-                    ))
+                # Enhanced Bar Chart
+                bar_colors = ['#4e79a7', '#f28e2b', '#90ee90', '#800080', '#edc948']
+                fig = px.bar(student_performance, x='Subjects', y='Marks', color='Marks',
+                             color_continuous_scale=bar_colors, title=f"{splitname}'s Performance in Selected Subjects")
 
                 fig.update_layout(
-                    title=f"{studentname}'s Performance in Selected Subjects",
                     xaxis_title="Subjects",
                     yaxis_title="Marks",
                     yaxis=dict(range=[0, 100]),
                     width=800,
-                    height=500
+                    height=500,
+                    coloraxis_showscale=False
                 )
-
                 st.plotly_chart(fig)
 
                 # Radar Chart for Performance Comparison
@@ -100,7 +93,7 @@ else:
                         )
                     ),
                     showlegend=True,
-                    title=f"{studentname}'s Performance Radar Chart"
+                    title=f"{splitname}'s Performance Radar Chart"
                 )
                 st.plotly_chart(fig_radar)
 
@@ -181,23 +174,23 @@ else:
 
                 # Additional Insights
                 st.header(f"📊 Additional Insights for {splitname}")
-                
-                # Adding trend analysis
+
+                # Trend analysis
                 st.subheader("Trend Analysis 📈")
                 st.write("Analyze the trend of marks over different semesters or exams to identify consistent improvement or decline.")
 
-                # Adding percentile ranking
+                # Percentile ranking
                 st.subheader("Percentile Ranking 📊")
                 percentile = df[selection].rank(pct=True).loc[df['Roll Number'] == roll_num].mean(axis=1).values[0] * 100
                 st.write(f"{splitname} is in the {percentile:.2f}th percentile among classmates.")
 
-                # Loading attendance data
+                # Attendance data
                 st.header(f"📑 {splitname}'s Attendance Insights")
                 selected_attendance = selectedroll['attendance'].values
                 converted_attendance = int(selected_attendance)
                 st.write(f"{splitname}'s attendance percentage is {converted_attendance}%")
 
-                # Attendance conditioning
+                # Attendance analysis
                 if converted_attendance >= 90:
                     st.write(f'Congratulations, {splitname}! Your attendance is impressive. Keep it up!')
                 elif 80 <= converted_attendance < 90:
