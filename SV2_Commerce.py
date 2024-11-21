@@ -54,7 +54,7 @@ else:
                 student_performance['Subjects'] = student_performance.index
 
                 # Define bar colors
-                bar_colors = ['#4e79a7', '#f28e2b', '#f5deb3', '#800080', '#edc948']
+                bar_colors = ['#4e79a7', '#f28e2b', '#f5deb3', '#2ca02c', '#edc948']
 
                 # Add colors to the DataFrame for selected subjects
                 student_performance['Color'] = [bar_colors[i % len(bar_colors)] for i in range(len(student_performance))]
