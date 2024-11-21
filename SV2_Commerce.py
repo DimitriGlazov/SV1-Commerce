@@ -20,8 +20,8 @@ fileupload = st.file_uploader('Please upload your file here', type='XLSX')
 
 # Display image only if no file is uploaded
 if fileupload is None:
-    st.image(image_url, caption=" How to use the application ", use_column_width=True)
     st.info('Please upload the file to analyze the data')
+    st.image(image_url, caption=" How to use the application ", use_column_width=True)
 else:
     try:
         df = pd.read_excel(fileupload, engine='openpyxl')
