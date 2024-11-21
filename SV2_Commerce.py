@@ -12,7 +12,6 @@ st.header('Insight Spark 📈')
 st.subheader('Analyse Student Performance in real time')
 
 # URL of the image to display initially
-
 image_url = "https://dl.dropboxusercontent.com/scl/fi/0uegmmox9itmw0iyzhkl5/SVD-image.jpg?rlkey=yuvbqklgp3dgzshuua95v5hhs&raw=1"
 
 # File upload
@@ -54,19 +53,32 @@ else:
                 student_performance['Marks'] = student_performance['Marks'].astype(float)
                 student_performance['Subjects'] = student_performance.index
 
-                # Enhanced Bar Chart
+                # Define bar colors
                 bar_colors = ['#4e79a7', '#f28e2b', '#f5deb3', '#800080', '#edc948']
-                fig = px.bar(student_performance, x='Subjects', y='Marks', color='Marks',
-                             color_continuous_scale=bar_colors, title=f"{studentname}'s Performance in Selected Subjects")
+
+                # Add colors to the DataFrame for selected subjects
+                student_performance['Color'] = [bar_colors[i % len(bar_colors)] for i in range(len(student_performance))]
+
+                # Create the bar chart with explicit colors
+                fig = go.Figure()
+
+                for index, row in student_performance.iterrows():
+                    fig.add_trace(go.Bar(
+                        x=[row['Subjects']],
+                        y=[row['Marks']],
+                        marker_color=row['Color'],
+                        name=row['Subjects']
+                    ))
 
                 fig.update_layout(
+                    title=f"{studentname}'s Performance in Selected Subjects",
                     xaxis_title="Subjects",
                     yaxis_title="Marks",
                     yaxis=dict(range=[0, 100]),
                     width=800,
-                    height=500,
-                    coloraxis_showscale=False
+                    height=500
                 )
+
                 st.plotly_chart(fig)
 
                 # Radar Chart for Performance Comparison
